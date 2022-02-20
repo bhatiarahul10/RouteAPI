@@ -1,6 +1,4 @@
 using GrapgDS;
-using System;
-using System.Runtime.InteropServices.ComTypes;
 using RouteAPI;
 using RouteAPI.Exceptions;
 using Xunit;
@@ -37,8 +35,16 @@ namespace RouteAPITests
         {
             _routeManager.RegisterRoute("A", "B", 3);
             _routeManager.RegisterRoute("B", "C", 4);
-            var distance  = _routeManager.GetDistance("ABC");
+            var distance  = _routeManager.GetDistance("A-B-C");
             Assert.Equal(7,distance);
+        }
+
+        [Fact]
+        public void givenAInvalidRouteToGetDistanceThenThrowRouteDoesNotExistException()
+        {
+            Assert.Throws<RouteDoesNotExistException>(()=> _routeManager.GetDistance("A-A-C"));
+
+            Assert.Throws<RouteDoesNotExistException>(() => _routeManager.GetDistance("A"));
         }
 
         [Fact]
@@ -67,6 +73,24 @@ namespace RouteAPITests
         public void givenTwoLandMarksWhenNoPathExistsThenReturnLiteralStringPathNotExists()
         {
             Assert.Throws<RouteDoesNotExistException>(() => _routeManager.GetDistance("XYZ"));
+        }
+
+        [Fact]
+        public void givenTwoLandMarksGetTheRoute()
+        {
+            _routeManager.RegisterRoute("A", "B", 4);
+            _routeManager.RegisterRoute("A", "C", 4);
+            _routeManager.RegisterRoute("B", "D", 4);
+            _routeManager.RegisterRoute("C", "E", 4);
+            _routeManager.RegisterRoute("C", "F", 4);
+            _routeManager.RegisterRoute("E", "G", 4);
+            _routeManager.RegisterRoute("D", "P", 4);
+            _routeManager.RegisterRoute("P", "R", 4);
+            _routeManager.RegisterRoute("R", "G", 4);
+
+            var noOfRoutes = _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops("A", "G", 4);
+            Assert.Equal(1, noOfRoutes);
+
         }
 
     }

@@ -34,10 +34,10 @@ namespace RouteAPIService.Controllers
         }
 
         [HttpGet]
-        [Route("/{stops}")]
-        public int GetRoutesWithSpecifiedNumberOfHops(string[] landmarks, int stops)
+        [Route("/{stops?}")]
+        public int GetRoutesWithSpecifiedNumberOfHops(string origin, string destination, int stops)
         {
-           return  _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops(landmarks, stops);
+            return _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops(origin, destination, stops);
         }
 
 

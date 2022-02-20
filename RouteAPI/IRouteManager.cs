@@ -21,9 +21,10 @@
         /// <summary>
         /// Gets the number of routes having maximum<param name="maxHops"></param> hops
         /// </summary>
-        /// <param name="landmarks"></param>
+        /// <param name="origin"></param>
+        /// <param name="destination"></param>
         /// <param name="maxHops"></param>
         /// <returns></returns>
-        int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string[] landmarks, int maxHops);
+        int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string origin, string destination, int maxHops);
     }
 }

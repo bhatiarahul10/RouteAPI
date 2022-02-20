@@ -9,5 +9,7 @@ namespace RouteAPI
 
         Landmark RemoveALandMark(string name);
 
+        Landmark GetLandmark(string name);
+
     }
 }

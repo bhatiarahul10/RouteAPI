@@ -1,24 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RouteAPI.Entities
 {
     public class Landmark
     {
-        public int Index { get; }
+        public List<Landmark> AdjacentLandmarks { get; }
 
         public string Name { get; }
 
         public Landmark(string name)
         {
             Name = name;
+            AdjacentLandmarks = new List<Landmark>();
         }
 
         public override bool Equals(object? obj) => ((Landmark)obj).Name.Equals(Name, StringComparison.InvariantCultureIgnoreCase);
-
-        protected bool Equals(Landmark other)
-        {
-            return Name == other.Name;
-        }
 
         public override int GetHashCode()
         {
