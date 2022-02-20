@@ -4,6 +4,8 @@ namespace RouteAPI.Entities
 {
     public class Landmark
     {
+        public int Index { get; }
+
         public string Name { get; }
 
         public Landmark(string name)

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouteAPI", "GrapgDS\RouteAPI.csproj", "{E391DF1B-89AD-4098-BE9B-AC786E6CB3C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPI", "RouteAPI\RouteAPI.csproj", "{E391DF1B-89AD-4098-BE9B-AC786E6CB3C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouteAPITests", "GraphDSTests\RouteAPITests.csproj", "{742F3BEB-0582-4A3C-9608-BCADFF3E7C03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPITests", "RouteAPITests\RouteAPITests.csproj", "{742F3BEB-0582-4A3C-9608-BCADFF3E7C03}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPIService", "RouteAPISevice\RouteAPIService.csproj", "{63705B39-6EDE-46C6-B78A-870BD1C4C387}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{742F3BEB-0582-4A3C-9608-BCADFF3E7C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742F3BEB-0582-4A3C-9608-BCADFF3E7C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{742F3BEB-0582-4A3C-9608-BCADFF3E7C03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

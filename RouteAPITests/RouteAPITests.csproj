@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GrapgDS\Route.csproj" />
     <ProjectReference Include="..\GrapgDS\RouteAPI.csproj" />
+    <ProjectReference Include="..\RouteAPI\RouteAPI.csproj" />
   </ItemGroup>
 
 </Project>

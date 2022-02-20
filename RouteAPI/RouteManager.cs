@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using GrapgDS;
 using RouteAPI.Entities;
+using RouteAPI.Exceptions;
 
 namespace RouteAPI
 {
-    public class RouteManager: IRouteManager
+    public class RouteManager : IRouteManager
     {
         private readonly ILandMarkManager _manager;
 
-        private List<Landmark> _landmarks = new List<Landmark>();
+        private HashSet<Landmark> _landmarks = new HashSet<Landmark>();
 
         private List<Route> _routes = new List<Route>();
 
@@ -19,63 +20,59 @@ namespace RouteAPI
             _manager = manager;
         }
 
+        public Route this[string from, string To]
+        {
+            get
+            {
+                var fromLandmark = _landmarks.FirstOrDefault(lm => lm.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
+                var toLandmark = _landmarks.FirstOrDefault(lm => lm.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
+                return _routes.FirstOrDefault();
+            }
+        }
+
+
         public bool RegisterRoute(string from, string to, int weightedDistance)
         {
             try
             {
                 if (String.Equals(to, from, StringComparison.InvariantCultureIgnoreCase))
-                    throw new InvalidOperationException(Constants.ExceptionMessageForInvalidRoute);
+                    throw new InvalidRouteException();
+
+                if (DoesRouteExists(from, to))
+                    throw new RouteAlreadyExistsException();
 
                 var fromLandMark = _manager.RegisterLandMark(from);
                 var toLandMark = _manager.RegisterLandMark(to);
+
                 var route = new Route(fromLandMark, toLandMark, weightedDistance);
                 _routes.Add(route);
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 throw;
             }
         }
 
-
-
-        public Landmark AddLandMark(string name)
+        public int GetDistance(string route)
         {
-            var landMark = new Landmark(name);
-            _landmarks.Add(landMark);
-            return landMark;
-        }
+            if (string.IsNullOrEmpty(route))
+                throw new ArgumentNullException("Empty route");
 
-        public void AddDistanceLandMark(string to , string from, int distance)
-        {
-            var toLandMark = _landmarks.FirstOrDefault(a => a.Name.Equals(to, StringComparison.InvariantCultureIgnoreCase));
-            if (toLandMark == null)
-                throw new ArgumentNullException("Non-existent landmark");
-
-            var fromLandMark = _landmarks.FirstOrDefault(a => a.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
-            if (fromLandMark == null)
-                throw new ArgumentNullException("Non existent landmark");
-
-            //var distanceBwLandMarks = new Distance(fromLandMark, toLandMark, distance);
-
-            //_distances.Add(distanceBwLandMarks);
-        }
-
-        public int? GetDistance(string to, string from)
-        {
-            var toLandMark = _landmarks.FirstOrDefault(a => a.Equals(to));
-            if (toLandMark == null)
-                throw new ArgumentNullException("Non existent landmark");
-
-            var fromLandMark = _landmarks.FirstOrDefault(a => a.Equals(from));
-            if (fromLandMark == null)
-                throw new ArgumentNullException("Non existent landmark");
-
+            var landMarks = route.ToCharArray();
             return 0;
         }
 
-       
+        #region Helper methods
+
+        private bool DoesRouteExists(string from, string to)
+        {
+            return true;
+        }
+
+        #endregion 
+
+
     }
 }
