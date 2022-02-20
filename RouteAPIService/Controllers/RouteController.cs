@@ -1,28 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using RouteAPI;
 using RouteAPI.Entities;
 
-namespace RouteAPISevice.Controllers
+namespace RouteAPIService.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class RouteController : ControllerBase
     {
         private readonly ILogger<RouteController> _logger;
+        private readonly IRouteManager _routeManager;
 
-        public RouteController(ILogger<RouteController> logger)
+        public RouteController(ILogger<RouteController> logger, IRouteManager routeManager)
         {
             _logger = logger;
+            _routeManager = routeManager;
         }
 
         [HttpGet]
         [Route("/")]
-        public IEnumerable<Route> Get()
+        public IEnumerable<Route> Get(string route)
         {
             return new List<Route>();
         }
@@ -32,6 +31,13 @@ namespace RouteAPISevice.Controllers
         public int GetDistance()
         {
             return 12;
+        }
+
+        [HttpGet]
+        [Route("/{stops}")]
+        public int GetRoutesWithSpecifiedNumberOfHops(string[] landmarks, int stops)
+        {
+           return  _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops(landmarks, stops);
         }
 
 

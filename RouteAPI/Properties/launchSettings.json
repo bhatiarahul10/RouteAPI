@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RouteAPI": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

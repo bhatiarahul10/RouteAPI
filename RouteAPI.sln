@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPI", "RouteAPI\RouteA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPITests", "RouteAPITests\RouteAPITests.csproj", "{742F3BEB-0582-4A3C-9608-BCADFF3E7C03}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPIService", "RouteAPISevice\RouteAPIService.csproj", "{63705B39-6EDE-46C6-B78A-870BD1C4C387}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPIService", "RouteAPIService\RouteAPIService.csproj", "{63705B39-6EDE-46C6-B78A-870BD1C4C387}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{87D07993-8101-4A7C-B9D1-133DB3FA990B}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		Dockerfile = Dockerfile
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

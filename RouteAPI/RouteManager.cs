@@ -64,6 +64,12 @@ namespace RouteAPI
             return 0;
         }
 
+        public int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string[] landmarks, int maxHops)
+        {
+            throw new NotImplementedException();
+        }
+
+
         #region Helper methods
 
         private bool DoesRouteExists(string from, string to)
@@ -71,7 +77,8 @@ namespace RouteAPI
             return true;
         }
 
-        #endregion 
+       
+        #endregion
 
 
     }

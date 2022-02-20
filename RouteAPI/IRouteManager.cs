@@ -17,5 +17,13 @@
         /// <param name="route"></param>
         /// <returns>Int</returns>
         int GetDistance(string route);
+
+        /// <summary>
+        /// Gets the number of routes having maximum<param name="maxHops"></param> hops
+        /// </summary>
+        /// <param name="landmarks"></param>
+        /// <param name="maxHops"></param>
+        /// <returns></returns>
+        int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string[] landmarks, int maxHops);
     }
 }
