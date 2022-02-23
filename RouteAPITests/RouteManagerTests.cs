@@ -110,5 +110,52 @@ namespace RouteAPITests
 
         }
 
+        [Fact]
+        public void givenTwoLandMarksGetThePathWithSpecifiedHops()
+        {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("B");
+            _landMarkManager.RegisterLandMark("C");
+            _landMarkManager.RegisterLandMark("D");
+            _landMarkManager.RegisterLandMark("E");
+        
+
+            _routeManager.RegisterRoute("A", "B", 3);
+            _routeManager.RegisterRoute("B", "C", 9);
+            _routeManager.RegisterRoute("C", "D",3);
+            _routeManager.RegisterRoute("D", "E",6);
+            _routeManager.RegisterRoute("A", "D",4);
+            _routeManager.RegisterRoute("D", "A",5);
+            _routeManager.RegisterRoute("C", "E",2);
+            _routeManager.RegisterRoute("A", "E",4);
+            _routeManager.RegisterRoute("E", "B",1);
+            var noOfRoutes = _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops("A", "C", 2);
+            Assert.Equal(2, noOfRoutes);
+        }
+
+        [Fact]
+        public void givenTwoLandMarksForACyclicGraphGetThePathWithSpecifiedHops()
+        {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("B");
+            _landMarkManager.RegisterLandMark("C");
+            _landMarkManager.RegisterLandMark("D");
+            _landMarkManager.RegisterLandMark("E");
+
+
+            _routeManager.RegisterRoute("A", "B", 3);
+            _routeManager.RegisterRoute("A", "D", 4);
+            _routeManager.RegisterRoute("A", "E", 4);
+            _routeManager.RegisterRoute("B", "C", 9);
+            _routeManager.RegisterRoute("B", "E", 5);
+            _routeManager.RegisterRoute("C", "D", 3);
+            _routeManager.RegisterRoute("C", "E", 2);
+            _routeManager.RegisterRoute("D", "E", 6);
+            _routeManager.RegisterRoute("D", "A", 5);
+            _routeManager.RegisterRoute("E", "B", 1);
+            var noOfRoutes = _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops("A", "C", 2);
+            Assert.Equal(2, noOfRoutes);
+        }
+
     }
 }

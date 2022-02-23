@@ -40,7 +40,7 @@ namespace RouteAPI
                     throw new Exception();
 
                 return _routesRepository.SaveRoute(from, to, weightedDistance);
-                
+
             }
             catch (RouteException)
             {
@@ -62,9 +62,27 @@ namespace RouteAPI
             var paths = route.Split("-");
             for (var i = 0; i < paths.Length - 1; i++)
             {
-                distance += _routesRepository.GetRoute(paths[i], paths[i + 1]).Distance;
+                var path = _routesRepository.GetRoute(paths[i], paths[i + 1]);
+                if (path == null)
+                    throw new RouteException(HttpStatusCode.BadRequest,
+                        Constants.ExceptionMessageWhenRouteDoesNotExists);
+                distance += path.Distance;
             }
             return distance;
+        }
+
+        private IEnumerable<Route> GetPathsForRoute(string incomingRoute)
+        {
+            var routes = new List<Route>();
+            var paths = incomingRoute.Split("-");
+            for (var i = 0; i < paths.Length - 1; i++)
+            {
+                var route = _routesRepository.GetRoute(paths[i], paths[i + 1]);
+                if (route == null)
+                    return null;
+                routes.Add(route);
+            }
+            return routes;
         }
 
         public IEnumerable<Route> GetAllRoutes()
@@ -88,6 +106,16 @@ namespace RouteAPI
             return routes.Count(r => r.Length <= maxHops + 2);
         }
 
+        public void Remove()
+        {
+            _routesRepository.RemoveAll();
+        }
+
+        public void RemoveRoute(string @from, string to)
+        {
+            _routesRepository.Remove(from, to);
+        }
+
         #region Helper methods
 
         internal IEnumerable<string> GetRoutes(Landmark origin, Landmark destination)
@@ -99,8 +127,8 @@ namespace RouteAPI
             Queue<Landmark> queue = new Queue<Landmark>();
             HashSet<string> results = new HashSet<string>();
             queue.Enqueue(origin);
-            HashSet<Landmark> isVisited = new HashSet<Landmark>();
-            
+            HashSet<string> isVisited = new HashSet<string>();
+
             while (queue.Count > 0)
             {
                 var source = queue.Dequeue();
@@ -114,7 +142,10 @@ namespace RouteAPI
                         }
                         else
                         {
-                            backTrackPaths[neighbor.Name].Add(path + neighbor.Name);
+                            if (!backTrackPaths[neighbor.Name].Any(p => path.Contains(neighbor.Name)))
+                            {
+                                backTrackPaths[neighbor.Name].Add(path + neighbor.Name);
+                            }
                         }
                     }
 
@@ -124,16 +155,23 @@ namespace RouteAPI
                         continue;
                     }
 
-                    if (!isVisited.Contains(neighbor))
+                    var route = source.Name + neighbor.Name;
+
+                    if (!isVisited.Contains(route) && neighbor.Name != origin.Name)
                     {
-                        isVisited.Add(neighbor);
+                        isVisited.Add(route);
+                        queue.Enqueue(neighbor);
                     }
-                    queue.Enqueue(neighbor);
+
                 }
             }
 
             return results;
         }
+
+      
+
+        
 
         internal bool IsRouteValid(string route)
         {

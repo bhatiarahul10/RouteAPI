@@ -35,5 +35,17 @@ namespace RouteAPI
         /// <param name="maxHops"></param>
         /// <returns></returns>
         int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string origin, string destination, int maxHops);
+
+        /// <summary>
+        /// Removes all routes
+        /// </summary>
+        void Remove();
+
+        /// <summary>
+        /// Remove a specific route
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        void RemoveRoute(string from, string to);
     }
 }

@@ -33,6 +33,7 @@ namespace RouteAPIService
             services.AddSingleton<ILandMarkManager, LandMarkManager>();
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RouteAPISevice", Version = "v1" });
             });
             services.AddControllers(options =>

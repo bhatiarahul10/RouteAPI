@@ -41,5 +41,33 @@ namespace RouteAPI.DataAccess
             return route;
         }
 
+        public void RemoveAll()
+        {
+            try
+            {
+                _routes.Clear();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public void Remove(string @from, string to)
+        {
+            try
+            {
+                var route = GetRoute(from, to);
+                _routes.Remove(route.ToString());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+           
+        }
+
     }
 }
