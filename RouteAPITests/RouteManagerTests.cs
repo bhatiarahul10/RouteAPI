@@ -21,12 +21,12 @@ namespace RouteAPITests
             var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "C", 4);
             Assert.True(isRegisteredSuccessfully);
         }
-       
+
         [Fact]
         public void givenARouteWhenStartingAndEndingLandMarksAreSameThrowInvalidRouteException()
         {
-            var exception  = Assert.Throws<InvalidRouteException>(
-                ()=> _routeManager.RegisterRoute("A", "A", 4));
+            var exception = Assert.Throws<RouteException>(
+                () => _routeManager.RegisterRoute("A", "A", 4));
             Assert.Equal(Constants.ExceptionMessageForInvalidRoute, exception.Message);
         }
 
@@ -35,16 +35,18 @@ namespace RouteAPITests
         {
             _routeManager.RegisterRoute("A", "B", 3);
             _routeManager.RegisterRoute("B", "C", 4);
-            var distance  = _routeManager.GetDistance("A-B-C");
-            Assert.Equal(7,distance);
+            var distance = _routeManager.GetDistance("A-B-C");
+            Assert.Equal(7, distance);
         }
 
         [Fact]
         public void givenAInvalidRouteToGetDistanceThenThrowRouteDoesNotExistException()
         {
-            Assert.Throws<RouteDoesNotExistException>(()=> _routeManager.GetDistance("A-A-C"));
+            var exception = Assert.Throws<RouteException>(() => _routeManager.GetDistance("A-A-C"));
+            Assert.Equal(Constants.ExceptionMessageWhenRouteDoesNotExists, exception.Message);
 
-            Assert.Throws<RouteDoesNotExistException>(() => _routeManager.GetDistance("A"));
+            exception = Assert.Throws<RouteException>(() => _routeManager.GetDistance("A"));
+            Assert.Equal(Constants.ExceptionMessageWhenRouteDoesNotExists, exception.Message);
         }
 
         [Fact]
@@ -53,26 +55,28 @@ namespace RouteAPITests
             var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "B", 4);
             Assert.True(isRegisteredSuccessfully);
 
-            Assert.Throws<RouteAlreadyExistsException>(()=> 
+            var exception = Assert.Throws<RouteException>(() =>
                 _routeManager.RegisterRoute("A", "B", 4));
+            Assert.Equal(Constants.ExceptionMessageWhenRouteAlreadyExists,exception.Message);
         }
 
         [Fact]
         public void givenARouteGetDifferentLandMarks()
         {
-         
+
         }
 
         [Fact]
         public void givenTwoLandMarksWithALimitOfMaximumStopsReturnTheProbableRoutes()
         {
-           
+
         }
 
         [Fact]
         public void givenTwoLandMarksWhenNoPathExistsThenReturnLiteralStringPathNotExists()
         {
-            Assert.Throws<RouteDoesNotExistException>(() => _routeManager.GetDistance("XYZ"));
+            var exception = Assert.Throws<RouteException>(() => _routeManager.GetDistance("XYZ"));
+            Assert.Equal(Constants.ExceptionMessageWhenRouteDoesNotExists, exception.Message);
         }
 
         [Fact]

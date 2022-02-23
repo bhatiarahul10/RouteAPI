@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RouteAPI;
@@ -7,7 +8,6 @@ using RouteAPI.Entities;
 namespace RouteAPIService.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class RouteController : ControllerBase
     {
         private readonly ILogger<RouteController> _logger;
@@ -19,32 +19,33 @@ namespace RouteAPIService.Controllers
             _routeManager = routeManager;
         }
 
+
         [HttpGet]
-        [Route("/")]
-        public IEnumerable<Route> Get(string route)
+        [Route("v1/[controller]")]
+        public IDictionary<string,int> Get()
         {
-            return new List<Route>();
+            return _routeManager.GetAllRoutes();
         }
 
         [HttpGet]
-        [Route("/distance")]
-        public int GetDistance()
+        [Route("v1/[controller]/distance")]
+        public int GetDistance(string route)
         {
-            return 12;
+            return _routeManager.GetDistance(route);
         }
 
         [HttpGet]
-        [Route("/{stops?}")]
+        [Route("v1/[controller]/count")]
         public int GetRoutesWithSpecifiedNumberOfHops(string origin, string destination, int stops)
         {
             return _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops(origin, destination, stops);
         }
 
-
         [HttpPost]
-        public void RegisterRoute(Route route)
+        [Route("v1/route")]
+        public bool RegisterRoute(string origin, string destination, int distance)
         {
-
+            return _routeManager.RegisterRoute(origin, destination, distance);
         }
     }
 }

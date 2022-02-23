@@ -1,4 +1,6 @@
-﻿namespace RouteAPI
+﻿using System.Collections.Generic;
+
+namespace RouteAPI
 {
     public interface IRouteManager
     {
@@ -17,6 +19,12 @@
         /// <param name="route"></param>
         /// <returns>Int</returns>
         int GetDistance(string route);
+
+        /// <summary>
+        /// Gets all routes
+        /// </summary>
+        /// <returns></returns>
+        IDictionary<string,int> GetAllRoutes();
 
         /// <summary>
         /// Gets the number of routes having maximum<param name="maxHops"></param> hops

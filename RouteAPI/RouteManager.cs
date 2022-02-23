@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 using GrapgDS;
 using RouteAPI.Entities;
 using RouteAPI.Exceptions;
@@ -35,48 +38,50 @@ namespace RouteAPI
             try
             {
                 if (string.Equals(to, from, StringComparison.InvariantCultureIgnoreCase))
-                    throw new InvalidRouteException();
+                    throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageForInvalidRoute);
 
                 var fromLandMark = _manager.RegisterLandMark(from);
                 var toLandMark = _manager.RegisterLandMark(to);
                 var path = $"{from}-{to}";
 
                 if (_routes.ContainsKey(path))
-                    throw new RouteAlreadyExistsException();
+                    throw new RouteException(HttpStatusCode.BadRequest,
+                        Constants.ExceptionMessageWhenRouteAlreadyExists);
 
                 fromLandMark.AdjacentLandmarks.Add(toLandMark);
                 _routes.Add($"{from}-{to}", weightedDistance);
 
                 return true;
             }
+            catch (RouteException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                throw;
+                throw new RouteException(HttpStatusCode.InternalServerError, Constants.ServerError);
             }
         }
 
         public int GetDistance(string route)
         {
-            if (string.IsNullOrEmpty(route))
-                throw new RouteDoesNotExistException();
-
-            var paths = route.Split("-");
-            var uniquePaths = paths.Distinct().ToArray();
-
-            var landmarks = uniquePaths.Select(lm => _manager.GetLandmark(lm));
-
-            if (uniquePaths.Count() < 2 && landmarks.Any(lm => lm == null)
-                                         && uniquePaths.Count() != paths.Length)
-                throw new RouteDoesNotExistException();
+            if (IsRouteValid(route))
+                throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageWhenRouteDoesNotExists);
 
             int distance = 0;
-            for (var i = 0; i < uniquePaths.Length - 1; i++)
+            var paths = route.Split("-");
+            for (var i = 0; i < paths.Length - 1; i++)
             {
-                var path = $"{uniquePaths[i]}-{uniquePaths[i + 1]}";
+                var path = $"{paths[i]}-{paths[i + 1]}";
                 distance += _routes[path];
             }
             return distance;
+        }
+
+        public IDictionary<string, int> GetAllRoutes()
+        {
+            return _routes;
         }
 
         public int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string origin, string destination, int maxHops)
@@ -84,20 +89,20 @@ namespace RouteAPI
             var fromLandmark = _manager.GetLandmark(origin);
 
             if (fromLandmark == null)
-                throw new RouteDoesNotExistException();
+                throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageWhenRouteDoesNotExists);
 
             var toLandmark = _manager.GetLandmark(destination);
 
             if (toLandmark == null)
-                throw new RouteDoesNotExistException();
+                throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageWhenRouteDoesNotExists);
 
             var routes = GetRoutes(fromLandmark, toLandmark);
-            return routes.Count(r => r.Length <= maxHops);
+            return routes.Count(r => r.Length <= maxHops + 2);
         }
 
         #region Helper methods
 
-        public IEnumerable<string> GetRoutes(Landmark origin, Landmark destination)
+        internal IEnumerable<string> GetRoutes(Landmark origin, Landmark destination)
         {
             // Collection to back track landmarks
             var backTrackPaths = new Dictionary<string, List<string>>();
@@ -138,6 +143,28 @@ namespace RouteAPI
             }
 
             return results;
+        }
+
+        internal bool IsRouteValid(string route)
+        {
+            if (string.IsNullOrEmpty(route))
+                return false;
+
+            var regex = @"((\w)+-(\w)+)";
+            var isRouteValid = Regex.IsMatch(route, regex);
+            if (!isRouteValid)
+                return false;
+
+            var paths = route.Split("-");
+            var uniquePaths = paths.Distinct().ToArray();
+
+            var landmarks = uniquePaths.Select(lm => _manager.GetLandmark(lm));
+
+            if (uniquePaths.Count() < 2 && landmarks.Any(lm => lm == null)
+                                        && uniquePaths.Count() != paths.Length)
+                return false;
+
+            return true;
         }
 
         #endregion
