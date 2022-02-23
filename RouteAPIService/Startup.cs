@@ -9,6 +9,7 @@ using RouteAPI;
 using RouteAPIService.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Rewrite;
+using RouteAPI.DataAccess;
 
 namespace RouteAPIService
 {
@@ -26,6 +27,8 @@ namespace RouteAPIService
         {
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
             services.AddControllers();
+            services.AddSingleton<ILandmarkRepository, LandmarkRepository>();
+            services.AddSingleton<IRoutesRepository, RoutesRepository>();
             services.AddSingleton<IRouteManager, RouteManager>();
             services.AddSingleton<ILandMarkManager, LandMarkManager>();
             services.AddSwaggerGen(c =>

@@ -1,33 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using RouteAPI.DataAccess.Entities;
 using RouteAPI.Entities;
 
 namespace RouteAPI.DataAccess
 {
     public class RoutesRepository : IRoutesRepository
     {
-        private readonly Dictionary<string, int> _routes;
+        private readonly Dictionary<string, Route> _routes;
 
         public RoutesRepository()
         {
-            _routes = new Dictionary<string, int>();
+            _routes = new Dictionary<string, Route>();
         }
 
-        public Dictionary<string, int> GetRoutes()
+        public IEnumerable<Route> GetRoutes()
         {
-            return _routes;
+            return _routes.Values;
         }
 
-        public KeyValuePair<string, int> GetRoute(string @from, string to)
+        public Route GetRoute(string @from, string to)
         {
             var path = $"{from}-{to}";
-            return _routes.FirstOrDefault(k => string.Equals(path, k.Key, StringComparison.InvariantCultureIgnoreCase));
+            try
+            {
+                return _routes[path];
+            }
+            catch
+            {
+                return null;
+            }
+            
         }
 
-        public void SaveRoute(string @from, string to, int distance)
+        public Route SaveRoute(string @from, string to, int distance)
         {
-            _routes.Add($"{from}-{to}", distance);
+            var route = new Route(from, to, distance);
+            _routes.Add(route.ToString(), route);
+            return route;
         }
 
     }

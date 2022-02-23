@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using RouteAPI.DataAccess.Entities;
 using RouteAPI.Entities;
 
 namespace RouteAPI.DataAccess
 {
     public interface IRoutesRepository
     {
-        Dictionary<string, int> GetRoutes();
+        IEnumerable<Route> GetRoutes();
 
-        KeyValuePair<string,int> GetRoute(string from, string to);
+        Route GetRoute(string from, string to);
 
-        void SaveRoute(string from ,string to, int distance);
+        Route SaveRoute(string from ,string to, int distance);
     }
 }

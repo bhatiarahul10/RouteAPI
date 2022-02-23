@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RouteAPI;
+using RouteAPI.DataAccess.Entities;
 using RouteAPI.Entities;
 
 namespace RouteAPIService.Controllers
@@ -22,7 +23,7 @@ namespace RouteAPIService.Controllers
 
         [HttpGet]
         [Route("v1/[controller]")]
-        public IDictionary<string,int> Get()
+        public IEnumerable<Route> Get()
         {
             return _routeManager.GetAllRoutes();
         }
@@ -43,9 +44,9 @@ namespace RouteAPIService.Controllers
 
         [HttpPost]
         [Route("v1/route")]
-        public bool RegisterRoute(string origin, string destination, int distance)
+        public JsonResult RegisterRoute(string origin, string destination, int distance)
         {
-            return _routeManager.RegisterRoute(origin, destination, distance);
+            return new JsonResult(_routeManager.RegisterRoute(origin, destination, distance));
         }
     }
 }

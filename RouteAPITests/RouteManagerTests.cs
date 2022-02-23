@@ -25,7 +25,7 @@ namespace RouteAPITests
         {
             _landMarkManager.RegisterLandMark("A");
             _landMarkManager.RegisterLandMark("C");
-            var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "C", 4);
+            var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "C", 4) != null;
             Assert.True(isRegisteredSuccessfully);
         }
 
@@ -67,12 +67,12 @@ namespace RouteAPITests
         {
             _landMarkManager.RegisterLandMark("A");
             _landMarkManager.RegisterLandMark("B");
-            var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "B", 4);
+            var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "B", 4)!=null;
             Assert.True(isRegisteredSuccessfully);
 
             var exception = Assert.Throws<RouteException>(() =>
                 _routeManager.RegisterRoute("A", "B", 4));
-            Assert.Equal(Constants.ExceptionMessageWhenRouteAlreadyExists,exception.Message);
+            Assert.Equal(Constants.ExceptionMessageWhenRouteAlreadyExists, exception.Message);
         }
 
         [Fact]

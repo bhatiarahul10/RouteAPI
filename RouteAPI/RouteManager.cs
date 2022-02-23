@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using GrapgDS;
 using RouteAPI.DataAccess;
+using RouteAPI.DataAccess.Entities;
 using RouteAPI.Entities;
 using RouteAPI.Exceptions;
 
@@ -24,22 +25,22 @@ namespace RouteAPI
             _routesRepository = routesRepository;
         }
 
-        public bool RegisterRoute(string from, string to, int weightedDistance)
+        public Route RegisterRoute(string from, string to, int weightedDistance)
         {
             try
             {
                 if (string.Equals(to, from, StringComparison.InvariantCultureIgnoreCase))
                     throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageForInvalidRoute);
 
-                if (_routesRepository.GetRoute(from, to).Key != null)
+                if (_routesRepository.GetRoute(from, to) != null)
                     throw new RouteException(HttpStatusCode.BadRequest,
                         Constants.ExceptionMessageWhenRouteAlreadyExists);
 
                 if (!_manager.UpdateNeighbours(from, to))
                     throw new Exception();
 
-                _routesRepository.SaveRoute(from, to, weightedDistance);
-                return true;
+                return _routesRepository.SaveRoute(from, to, weightedDistance);
+                
             }
             catch (RouteException)
             {
@@ -61,12 +62,12 @@ namespace RouteAPI
             var paths = route.Split("-");
             for (var i = 0; i < paths.Length - 1; i++)
             {
-                distance += _routesRepository.GetRoute(paths[i], paths[i + 1]).Value;
+                distance += _routesRepository.GetRoute(paths[i], paths[i + 1]).Distance;
             }
             return distance;
         }
 
-        public IDictionary<string, int> GetAllRoutes()
+        public IEnumerable<Route> GetAllRoutes()
         {
             return _routesRepository.GetRoutes();
         }

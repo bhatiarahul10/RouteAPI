@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RouteAPI.DataAccess.Entities;
 
 namespace RouteAPI
 {
@@ -11,7 +12,7 @@ namespace RouteAPI
         /// <param name="toLandMark"></param>
         /// <param name="weightedDistance"></param>
         /// <returns>Returns true if registered successfully</returns>
-        bool RegisterRoute(string fromLandMark, string toLandMark, int weightedDistance);
+        Route RegisterRoute(string fromLandMark, string toLandMark, int weightedDistance);
 
         /// <summary>
         /// Gets the distance for a route
@@ -24,7 +25,7 @@ namespace RouteAPI
         /// Gets all routes
         /// </summary>
         /// <returns></returns>
-        IDictionary<string,int> GetAllRoutes();
+        IEnumerable<Route> GetAllRoutes();
 
         /// <summary>
         /// Gets the number of routes having maximum<param name="maxHops"></param> hops
