@@ -1,5 +1,6 @@
 using GrapgDS;
 using RouteAPI;
+using RouteAPI.DataAccess;
 using RouteAPI.Exceptions;
 using Xunit;
 
@@ -8,16 +9,22 @@ namespace RouteAPITests
     public class RouteManagerTests
     {
         private readonly IRouteManager _routeManager;
+        private readonly ILandMarkManager _landMarkManager;
 
         public RouteManagerTests()
         {
-            ILandMarkManager landMarkManager = new LandMarkManager();
-            _routeManager = new RouteManager(landMarkManager);
+            ILandmarkRepository repo = new LandmarkRepository();
+            IRoutesRepository routeRepo = new RoutesRepository();
+
+            _landMarkManager = new LandMarkManager(repo);
+            _routeManager = new RouteManager(_landMarkManager, routeRepo);
         }
 
         [Fact]
         public void givenARouteRegisterIt()
         {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("C");
             var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "C", 4);
             Assert.True(isRegisteredSuccessfully);
         }
@@ -33,6 +40,9 @@ namespace RouteAPITests
         [Fact]
         public void givenARegisteredRouteGetDistanceAssociatedWithIt()
         {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("B");
+            _landMarkManager.RegisterLandMark("C");
             _routeManager.RegisterRoute("A", "B", 3);
             _routeManager.RegisterRoute("B", "C", 4);
             var distance = _routeManager.GetDistance("A-B-C");
@@ -42,6 +52,9 @@ namespace RouteAPITests
         [Fact]
         public void givenAInvalidRouteToGetDistanceThenThrowRouteDoesNotExistException()
         {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("C");
+
             var exception = Assert.Throws<RouteException>(() => _routeManager.GetDistance("A-A-C"));
             Assert.Equal(Constants.ExceptionMessageWhenRouteDoesNotExists, exception.Message);
 
@@ -52,6 +65,8 @@ namespace RouteAPITests
         [Fact]
         public void givenARouteWhenRouteAlreadyExistsThrowRouteAlreadyExistsException()
         {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("B");
             var isRegisteredSuccessfully = _routeManager.RegisterRoute("A", "B", 4);
             Assert.True(isRegisteredSuccessfully);
 
@@ -82,6 +97,16 @@ namespace RouteAPITests
         [Fact]
         public void givenTwoLandMarksGetTheRoute()
         {
+            _landMarkManager.RegisterLandMark("A");
+            _landMarkManager.RegisterLandMark("B");
+            _landMarkManager.RegisterLandMark("C");
+            _landMarkManager.RegisterLandMark("D");
+            _landMarkManager.RegisterLandMark("E");
+            _landMarkManager.RegisterLandMark("F");
+            _landMarkManager.RegisterLandMark("G");
+            _landMarkManager.RegisterLandMark("P");
+            _landMarkManager.RegisterLandMark("R");
+
             _routeManager.RegisterRoute("A", "B", 4);
             _routeManager.RegisterRoute("A", "C", 4);
             _routeManager.RegisterRoute("B", "D", 4);
@@ -93,7 +118,7 @@ namespace RouteAPITests
             _routeManager.RegisterRoute("R", "G", 4);
 
             var noOfRoutes = _routeManager.GetRoutesForLandMarksWithSpecifiedNumberOfHops("A", "G", 4);
-            Assert.Equal(1, noOfRoutes);
+            Assert.Equal(2, noOfRoutes);
 
         }
 

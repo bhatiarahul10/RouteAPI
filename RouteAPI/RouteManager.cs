@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using GrapgDS;
+using RouteAPI.DataAccess;
 using RouteAPI.Entities;
 using RouteAPI.Exceptions;
 
@@ -13,24 +14,14 @@ namespace RouteAPI
     public class RouteManager : IRouteManager
     {
         private readonly ILandMarkManager _manager;
+        private readonly IRoutesRepository _routesRepository;
 
         private HashSet<Landmark> _landmarks = new HashSet<Landmark>();
 
-        private Dictionary<string, int> _routes = new Dictionary<string, int>();
-
-        public RouteManager(ILandMarkManager manager)
+        public RouteManager(ILandMarkManager manager, IRoutesRepository routesRepository)
         {
             _manager = manager;
-        }
-
-        public Route this[string from, string To]
-        {
-            get
-            {
-                var fromLandmark = _landmarks.FirstOrDefault(lm => lm.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
-                var toLandmark = _landmarks.FirstOrDefault(lm => lm.Name.Equals(from, StringComparison.InvariantCultureIgnoreCase));
-                return null;
-            }
+            _routesRepository = routesRepository;
         }
 
         public bool RegisterRoute(string from, string to, int weightedDistance)
@@ -40,17 +31,14 @@ namespace RouteAPI
                 if (string.Equals(to, from, StringComparison.InvariantCultureIgnoreCase))
                     throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageForInvalidRoute);
 
-                var fromLandMark = _manager.RegisterLandMark(from);
-                var toLandMark = _manager.RegisterLandMark(to);
-                var path = $"{from}-{to}";
-
-                if (_routes.ContainsKey(path))
+                if (_routesRepository.GetRoute(from, to).Key != null)
                     throw new RouteException(HttpStatusCode.BadRequest,
                         Constants.ExceptionMessageWhenRouteAlreadyExists);
 
-                fromLandMark.AdjacentLandmarks.Add(toLandMark);
-                _routes.Add($"{from}-{to}", weightedDistance);
+                if (!_manager.UpdateNeighbours(from, to))
+                    throw new Exception();
 
+                _routesRepository.SaveRoute(from, to, weightedDistance);
                 return true;
             }
             catch (RouteException)
@@ -66,22 +54,21 @@ namespace RouteAPI
 
         public int GetDistance(string route)
         {
-            if (IsRouteValid(route))
+            if (!IsRouteValid(route))
                 throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageWhenRouteDoesNotExists);
 
             int distance = 0;
             var paths = route.Split("-");
             for (var i = 0; i < paths.Length - 1; i++)
             {
-                var path = $"{paths[i]}-{paths[i + 1]}";
-                distance += _routes[path];
+                distance += _routesRepository.GetRoute(paths[i], paths[i + 1]).Value;
             }
             return distance;
         }
 
         public IDictionary<string, int> GetAllRoutes()
         {
-            return _routes;
+            return _routesRepository.GetRoutes();
         }
 
         public int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string origin, string destination, int maxHops)
@@ -106,11 +93,13 @@ namespace RouteAPI
         {
             // Collection to back track landmarks
             var backTrackPaths = new Dictionary<string, List<string>>();
+            backTrackPaths.Add(origin.Name, new List<string>() { origin.Name });
+
             Queue<Landmark> queue = new Queue<Landmark>();
             HashSet<string> results = new HashSet<string>();
             queue.Enqueue(origin);
             HashSet<Landmark> isVisited = new HashSet<Landmark>();
-            backTrackPaths.Add(origin.Name, new List<string>() { origin.Name });
+            
             while (queue.Count > 0)
             {
                 var source = queue.Dequeue();
@@ -160,15 +149,13 @@ namespace RouteAPI
 
             var landmarks = uniquePaths.Select(lm => _manager.GetLandmark(lm));
 
-            if (uniquePaths.Count() < 2 && landmarks.Any(lm => lm == null)
-                                        && uniquePaths.Count() != paths.Length)
+            if (uniquePaths.Count() < 2 || landmarks.Any(lm => lm == null)
+                                        || uniquePaths.Count() != paths.Length)
                 return false;
 
             return true;
         }
 
         #endregion
-
-
     }
 }

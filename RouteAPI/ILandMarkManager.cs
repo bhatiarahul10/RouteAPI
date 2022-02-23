@@ -1,4 +1,5 @@
-﻿using GrapgDS;
+﻿using System.Collections.Generic;
+using GrapgDS;
 using RouteAPI.Entities;
 
 namespace RouteAPI
@@ -7,9 +8,11 @@ namespace RouteAPI
     {
         Landmark RegisterLandMark(string name);
 
-        Landmark RemoveALandMark(string name);
-
         Landmark GetLandmark(string name);
+
+        public IEnumerable<Landmark> GetLandmarks();
+
+        public bool UpdateNeighbours(string from ,string to);
 
     }
 }

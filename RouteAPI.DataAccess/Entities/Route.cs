@@ -1,6 +1,5 @@
-﻿using GrapgDS;
-
-namespace RouteAPI.Entities
+﻿
+namespace RouteAPI.DataAccess.Entities
 {
     public class Route
     {
@@ -9,6 +8,11 @@ namespace RouteAPI.Entities
         public string ToLandMark { get; }
 
         public int Distance { get; }
+
+        public override string ToString()
+        {
+            return $"{FromLandMark}-{ToLandMark}";
+        }
 
         public Route(string from , string to, int distance)
         {

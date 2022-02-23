@@ -4,40 +4,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using GrapgDS;
+using RouteAPI.DataAccess;
 using RouteAPI.Entities;
 
 namespace RouteAPI
 {
     public class LandMarkManager : ILandMarkManager
     {
-        public IList<Landmark> AllLandmarks { get; }
+        private readonly ILandmarkRepository _repository;
 
-        public LandMarkManager()
+        public LandMarkManager(ILandmarkRepository repository)
         {
-            AllLandmarks = new List<Landmark>();
+            _repository = repository;
         }
 
         public Landmark RegisterLandMark(string name)
         {
-            var landmark =
-                AllLandmarks.FirstOrDefault(lm => lm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            
+            var landmark = _repository.GetLandmark(name);
             if (landmark == null)
             {
                 landmark = new Landmark(name);
-                AllLandmarks.Add(landmark);
+                _repository.SaveLandmark(landmark);
+
             }
             return landmark;
         }
 
         public Landmark GetLandmark(string name)
         {
-            return AllLandmarks.FirstOrDefault(lm => lm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            return _repository.GetLandmark(name);
         }
 
-
-        public Landmark RemoveALandMark(string name)
+        public IEnumerable<Landmark> GetLandmarks()
         {
-            throw new NotImplementedException();
+            return _repository.GetLandmarks();
+        }
+
+        public bool UpdateNeighbours(string from, string to)
+        {
+            var fromLandMark = _repository.GetLandmark(from);
+            var toLandMark = _repository.GetLandmark(to);
+            if (fromLandMark != null && toLandMark != null)
+            {
+                fromLandMark.AdjacentLandmarks.Add(toLandMark);
+                return true;
+            }
+
+            return false;
         }
     }
+
+   
 }

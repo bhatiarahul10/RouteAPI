@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouteAPI.DataAccess", "RouteAPI.DataAccess\RouteAPI.DataAccess.csproj", "{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63705B39-6EDE-46C6-B78A-870BD1C4C387}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
