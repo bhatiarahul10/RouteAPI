@@ -76,18 +76,6 @@ namespace RouteAPITests
         }
 
         [Fact]
-        public void givenARouteGetDifferentLandMarks()
-        {
-
-        }
-
-        [Fact]
-        public void givenTwoLandMarksWithALimitOfMaximumStopsReturnTheProbableRoutes()
-        {
-
-        }
-
-        [Fact]
         public void givenTwoLandMarksWhenNoPathExistsThenReturnLiteralStringPathNotExists()
         {
             var exception = Assert.Throws<RouteException>(() => _routeManager.GetDistance("XYZ"));
