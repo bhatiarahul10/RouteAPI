@@ -23,15 +23,6 @@ namespace RouteAPIService.Controllers
             _routeManager = routeManager;
         }
 
-
-        [HttpGet]
-        [Route("v1/[controller]")]
-        [SwaggerOperation(Summary = "Gets all routes")]
-        public IEnumerable<Route> Get()
-        {
-            return _routeManager.GetAllRoutes();
-        }
-
         [HttpGet]
         [Route("v1/[controller]/distance")]
         [SwaggerOperation(Summary = "Gets distance for a route")]
@@ -50,11 +41,10 @@ namespace RouteAPIService.Controllers
 
         [HttpPost]
         [Route("v1/route")]
-        [SwaggerOperation(Summary = "Add a route")]
-        public JsonResult RegisterRoute(string origin, string destination, int distance)
+        [SwaggerOperation(Summary = "Add multiple routes seperated by semicolon")]
+        public JsonResult RegisterRoutes(string routes)
         {
-           
-            return new JsonResult(_routeManager.RegisterRoute(origin, destination, distance));
+            return new JsonResult(_routeManager.RegisterRoute(routes));
         }
 
         [HttpDelete]

@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouteAPI.DataAccess", "RouteAPI.DataAccess\RouteAPI.DataAccess.csproj", "{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RouteAPI.DataAccess", "RouteAPI.DataAccess\RouteAPI.DataAccess.csproj", "{F28A2F02-DF8D-4CAA-BC2A-3D888593300F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

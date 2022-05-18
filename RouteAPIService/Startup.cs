@@ -31,6 +31,7 @@ namespace RouteAPIService
             services.AddSingleton<IRoutesRepository, RoutesRepository>();
             services.AddSingleton<IRouteManager, RouteManager>();
             services.AddSingleton<ILandMarkManager, LandMarkManager>();
+
             services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();
