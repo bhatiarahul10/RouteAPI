@@ -1,15 +1,18 @@
-﻿using RouteAPI.DataAccess.Entities;
-using System;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace RouteAPI.DataAccess.Entities
 {
     public class Graph
     {
-        public List<Node> Nodes { get; } = new List<Node>();
+        public ConcurrentBag<Node> Nodes { get; } = new();
 
-        public List<Edge> Edges { get; } = new List<Edge>();
+        public ConcurrentBag<Edge> Edges { get; } = new();
+
+        private object _lock = new object();
 
         public Edge this[string source, string destination]
         {
@@ -32,30 +35,31 @@ namespace ConsoleApp1
         public virtual Node AddNode(string node)
         {
             if (this[node] != null)
-                throw new Exception("Landmark exists");
+                return this[node];
 
             var newNode = new Node(node);
-            this.Nodes.Add(newNode);
+            lock (_lock)
+            {
+                if (this[node] != null)
+                    return this[node];
+
+                Nodes.Add(newNode);
+            }
+
             return newNode;
         }
 
-        public virtual Edge AddEdge(string origin, string dest, int distance)
+        public virtual async Task<Edge> AddEdge(string origin, string dest, int distance)
         {
-            if (this[origin,dest] != null)
-                throw new Exception("Route exists");
-
-            if (string.Equals(origin, dest, StringComparison.InvariantCultureIgnoreCase))
-                throw new Exception("Invalid Route");
-
-            var originNode = AddNode(origin);
-            var destNode = AddNode(dest);
+            var originNode = await Task.Run(() => AddNode(origin));
+            var destNode = await Task.Run(() => AddNode(dest));
 
             if (originNode == null || destNode == null)
                 throw new Exception("Landmarks for route does not exist");
-            
-            originNode.AdjacentNodes.Add(destNode);
 
-            var newEdge = new Edge(originNode,destNode,distance);
+            originNode.AddNeighbour(destNode);
+
+            var newEdge = new Edge(originNode, destNode, distance);
             this.Edges.Add(newEdge);
             return newEdge;
         }

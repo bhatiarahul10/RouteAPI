@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using RouteAPI.DataAccess.Entities;
 
 namespace RouteAPI
 {
     public interface IRouteManager
     {
-        IEnumerable<Edge> RegisterRoute(string routes);
+        Task<IEnumerable<Edge>> RegisterRoute(string routes);
 
         int GetDistance(string route);
 

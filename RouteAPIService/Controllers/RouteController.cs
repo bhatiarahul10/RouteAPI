@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Policy;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RouteAPI;
 using RouteAPI.DataAccess.Entities;
-using RouteAPI.Entities;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading.Tasks;
 
 namespace RouteAPIService.Controllers
 {
@@ -42,9 +39,10 @@ namespace RouteAPIService.Controllers
         [HttpPost]
         [Route("v1/route")]
         [SwaggerOperation(Summary = "Add multiple routes seperated by semicolon")]
-        public JsonResult RegisterRoutes(string routes)
+        public async Task<JsonResult> RegisterRoutes(string routes)
         {
-            return new JsonResult(_routeManager.RegisterRoute(routes));
+            var a = await _routeManager.RegisterRoute(routes);
+            return new JsonResult(a);
         }
 
         [HttpDelete]

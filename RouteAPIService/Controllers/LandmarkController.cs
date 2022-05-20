@@ -1,9 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using RouteAPI;
 
 namespace RouteAPIService.Controllers
@@ -20,6 +15,7 @@ namespace RouteAPIService.Controllers
 
         [HttpGet]
         [Route("v1/[controller]")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Get()
         {
             return new JsonResult(_manager.GetLandmarks());
@@ -27,6 +23,7 @@ namespace RouteAPIService.Controllers
 
         [HttpPost]
         [Route("v1/[controller]")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult RegisterLandMark(string landmark)
         {
             return new JsonResult(_manager.RegisterLandMark(landmark));

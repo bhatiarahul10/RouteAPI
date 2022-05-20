@@ -1,65 +1,85 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Xml.Schema;
-using ConsoleApp1;
-using GrapgDS;
+﻿using GrapgDS;
 using RouteAPI.DataAccess;
 using RouteAPI.DataAccess.Entities;
-using RouteAPI.Entities;
 using RouteAPI.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RouteAPI
 {
     public class RouteManager : IRouteManager
     {
-        private readonly ILandMarkManager _manager;
         private readonly IRoutesRepository _routesRepository;
         private readonly Graph _graph;
-        private Dictionary<string, int> pathsCollection;
+        private readonly Dictionary<string, int> _pathsCollection;
 
-        private HashSet<Landmark> _landmarks = new HashSet<Landmark>();
 
-        public RouteManager(ILandMarkManager manager, IRoutesRepository routesRepository, Graph graph)
+        public RouteManager(IRoutesRepository routesRepository)
         {
-            _manager = manager;
             _routesRepository = routesRepository;
-            _graph = graph;
-            pathsCollection = new Dictionary<string, int>();
+            _graph = new Graph();
+            _pathsCollection = new Dictionary<string, int>();
         }
 
-        public IEnumerable<Edge> RegisterRoute(string routes)
+        public async Task<IEnumerable<Edge>> RegisterRoute(string routes)
         {
             try
             {
-                return routes.Split(';').Select(r =>
+                var impactedLandmarks = new HashSet<string>();
+                var edgesTasks = routes.Split(',').Select(async r =>
                 {
-                    var inputRoute = GetLandmarksFromInputRoute(out var regex);
+                    var inputRoute = GetLandmarksFromInputRoute(r.Trim());
                     if (inputRoute.origin != null && inputRoute.destination != null && inputRoute.distance != 0)
                     {
-                        return _graph.AddEdge(inputRoute.origin, inputRoute.destination, inputRoute.distance);
+                        if (_graph[inputRoute.origin, inputRoute.destination] != null)
+                            throw new RouteException(HttpStatusCode.BadRequest, "Route exists");
+
+                        if (string.Equals(inputRoute.origin, inputRoute.destination, StringComparison.InvariantCultureIgnoreCase))
+                            throw new RouteException(HttpStatusCode.BadRequest, "Invalid Route");
+
+                        impactedLandmarks.Add(inputRoute.origin);
+                        return await _graph.AddEdge(inputRoute.origin, inputRoute.destination, inputRoute.distance);
                     }
 
-                    throw new Exception("Bad request: Invalid route");
+                    throw new RouteException(HttpStatusCode.BadRequest, "Invalid Route");
                 });
+
+                var edges = await Task.WhenAll(edgesTasks);
+
+                var tempPathsCollection = _pathsCollection.Count > 0 ? _pathsCollection.ToDictionary(a => a.Key, a => a.Value) : _pathsCollection;
+                ProcessRoutes(impactedLandmarks);
+
+                if (tempPathsCollection != _pathsCollection)
+                    Interlocked.Exchange(ref tempPathsCollection, _pathsCollection);
+
+                return edges;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new RouteException(HttpStatusCode.InternalServerError, "Something wrong happened, Please try again");
             }
 
         }
 
-        public void ProcessRoutes()
+        public void ProcessRoutes(ICollection<string> nodes)
         {
-            foreach (var node in _graph.Nodes)
+            var tempPathsCollection = _pathsCollection.Count > 0 ? _pathsCollection.ToDictionary(a => a.Key, a => a.Value) : _pathsCollection;
+            
+            foreach (var nodeKey in nodes)
             {
-                GetAllPaths(node, pathsCollection, node.Key, _graph, 0);
+                var node = _graph[nodeKey];
+                GetAllPaths(node, tempPathsCollection, node.Key, _graph, 0);
             }
+
+            if (tempPathsCollection != _pathsCollection)
+                Interlocked.Exchange(ref tempPathsCollection, _pathsCollection);
         }
 
         private static void GetAllPaths(Node origin, Dictionary<string, int> paths, string psf, Graph graph, int distance)
@@ -70,21 +90,21 @@ namespace RouteAPI
                 {
                     GetAllPaths(child, paths, psf + child.Key, graph, distance + graph[origin.Key, child.Key].Distance);
                 }
-                if (!paths.ContainsKey(psf))
+                if (!paths.ContainsKey(psf) && !string.Equals(psf, origin.Key, StringComparison.InvariantCultureIgnoreCase))
                     paths.Add(psf, distance);
             }
         }
 
 
-        private  (string origin, string destination, int distance) GetLandmarksFromInputRoute(out string regex)
+        private (string origin, string destination, int distance) GetLandmarksFromInputRoute(string route)
         {
-            regex = @"^([a-zA-Z]{2})(\d{1})$";
-            var matches = Regex.Matches(regex, regex);
+            var regexWithDistance = @"^([a-zA-Z]{2})(\d{1})$";
+            var matches = Regex.Matches(route, regexWithDistance);
             if (matches.Count > 0)
             {
-                return (matches.FirstOrDefault()?.Groups[0].Value.FirstOrDefault().ToString(),
-                    matches.FirstOrDefault()?.Groups[0].Value.LastOrDefault().ToString(),
-                    int.Parse(matches.FirstOrDefault()?.Groups[1].Value.FirstOrDefault().ToString() ?? string.Empty));
+                return (matches.FirstOrDefault()?.Groups[1].Value.FirstOrDefault().ToString(),
+                    matches.FirstOrDefault()?.Groups[1].Value.LastOrDefault().ToString(),
+                    int.Parse(matches.FirstOrDefault()?.Groups[2].Value.FirstOrDefault().ToString() ?? string.Empty));
 
             }
             return (default, default, default);
@@ -92,23 +112,26 @@ namespace RouteAPI
 
         public int GetDistance(string route)
         {
-            var inputRoute = GetLandmarksFromInputRoute(out var regex);
-            if (!IsRouteValid(inputRoute))
-                throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageWhenRouteDoesNotExists);
+            try
+            {
+                return _pathsCollection[route];
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new RouteException(HttpStatusCode.BadRequest, "Invalid route");
+            }
 
-            return pathsCollection[
-                pathsCollection.Keys.FirstOrDefault(p =>
-                    p.StartsWith(inputRoute.origin) && p.EndsWith(inputRoute.destination)) ?? string.Empty];
         }
 
         public int GetRoutesForLandMarksWithSpecifiedNumberOfHops(string origin, string destination, int maxHops)
         {
-            if (_graph[origin] != null && _graph[destination] != null)
+            if (_graph[origin] == null && _graph[destination] == null)
                 throw new RouteException(HttpStatusCode.BadRequest, Constants.ExceptionMessageWhenRouteDoesNotExists);
 
             return
-                pathsCollection.Keys.Aggregate(0, (hops, p) =>
-                    p.StartsWith(origin) && p.EndsWith(destination) && p.Length < maxHops + 2 ? hops + 1 : hops);
+                _pathsCollection.Keys.Aggregate(0, (hops, p) =>
+                    p.StartsWith(origin) && p.EndsWith(destination) && p.Length <= maxHops + 2 ? hops + 1 : hops);
         }
 
         public void Remove()
@@ -118,6 +141,7 @@ namespace RouteAPI
 
         public void RemoveRoute(string @from, string to)
         {
+            ProcessRoutes(new[] {from});
             _routesRepository.Remove(from, to);
         }
 
